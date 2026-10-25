@@ -1,0 +1,318 @@
+"""
+Teacher bridge: a REAL LLM (Qwen2.5-0.5B-Instruct, pure numpy) -> DNA atoms.
+
+This closes the biggest hole in the previous session: `compile_from_teacher` used to
+accept hand-written fact tables while claiming to compile from a teacher.
+
+Pipeline
+--------
+    probe grid (entities x relations x paraphrases)
+        -> teacher answers (free-form generation, terse system prompt)
+        -> answer -> entity resolution (fuzzy, against the entity namespace)
+        -> majority vote over paraphrases  =>  extracted atoms
+        -> KnowledgeDNA.compile_from_teacher(extracted atoms)
+        -> teacher deleted  ->  DNA-only evaluation
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import sys
+import time
+import unicodedata
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from nano_qwen.tokenizer import QwenTokenizer, chatml_ids
+from nano_qwen.model import Qwen2, GenerationConfig
+
+# --------------------------------------------------------------------------
+# teacher
+# --------------------------------------------------------------------------
+SYSTEM = ("You are a precise factual database. Answer with the exact entity name only. "
+          "No explanation, no punctuation, no extra words.")
+PROMPT_VERSION = "v2"   # bump to invalidate the teacher-answer cache
+
+
+class QwenTeacher:
+    """A real LLM teacher that can be deleted after extraction."""
+
+    def __init__(self, model_dir="/tmp/qwen", cache_dir="/tmp/qwen/_fp32cache"):
+        self.tok = QwenTokenizer(os.path.join(model_dir, "vocab.json"),
+                                 os.path.join(model_dir, "merges.txt"))
+        self.model = Qwen2(model_dir, cache_dir=cache_dir)
+        self.calls = 0
+
+    def answer_batch(self, questions: list[str], max_new_tokens: int = 8,
+                     batch_size: int = 32) -> list[str]:
+        seqs = [chatml_ids(self.tok, q, system=SYSTEM) for q in questions]
+        outs = self.model.generate_batch(seqs,
+                                         GenerationConfig(max_new_tokens=max_new_tokens),
+                                         batch_size=batch_size)
+        self.calls += len(questions)
+        return [self.tok.decode(o).strip() for o in outs]
+
+    def delete(self):
+        """Free the model: after this the DNA must stand alone."""
+        self.model = None
+        self.tok = None
+        import gc
+        gc.collect()
+
+
+# --------------------------------------------------------------------------
+# answer -> entity resolution
+# --------------------------------------------------------------------------
+_PUNCT = re.compile(r"[^\w\s]+")
+
+
+def normalise(s: str) -> str:
+    s = unicodedata.normalize("NFKD", s).strip().lower()
+    s = _PUNCT.sub(" ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
+
+
+def build_slot_candidates(gold_atoms):
+    """Per-relation value domain (the extraction *schema*).
+
+    A real extraction pipeline always knows the type of the slot it is filling
+    ("the answer is a capital city", "the answer is a chemical symbol").  We
+    give the resolver the same information: the candidate set per relation.
+    The *choice* inside the set is still made by the teacher.
+    """
+    slots: dict[str, set] = {}
+    for (s, r, o) in gold_atoms:
+        slots.setdefault(r, set()).add(o)
+    return {r: sorted(v) for r, v in slots.items()}
+
+
+def resolve_in(answer: str, candidates, exclude=()) -> str | None:
+    """Resolve a teacher answer against a typed candidate set.
+
+    exact -> case-sensitive word-boundary containment -> numeric -> case-insensitive
+    """
+    a = normalise(answer)
+    if not a:
+        return None
+    cand = [c for c in candidates if c not in exclude]
+    lower = {c.lower(): c for c in cand}
+    if a in lower:
+        return lower[a]
+    # the teacher sometimes echoes the schema hint we put in the prompt
+    answer = re.sub(r"\([^)]*\)", " ", answer)
+    # word-boundary containment: the *last* candidate mentioned is the teacher's
+    # conclusion (it often contrasts two options)
+    hits = []
+    for c in cand:
+        if len(c) < 2:
+            continue
+        m = list(re.finditer(r"(?<![\w])" + re.escape(c) + r"(?![\w])", answer))
+        if m:
+            hits.append((m[-1].start(), len(c), c))
+    if hits:
+        return max(hits)[2]
+    # numeric answers
+    for m in re.finditer(r"\b(\d+)\b", answer):
+        for c in cand:
+            if c.strip() == m.group(1):
+                return c
+    # last resort: case-insensitive containment
+    hits = []
+    for c in cand:
+        if len(c) > 3 and c.lower() in a:
+            hits.append(c)
+    return max(hits, key=len) if hits else None
+
+
+def build_resolver(entity_names: list[str]):
+    """surface -> canonical entity (exact, then containment, then fuzzy)."""
+    exact = {}
+    for n in entity_names:
+        exact.setdefault(normalise(n), n)
+    return exact
+
+
+def resolve(answer: str, exact: dict, entity_names: list[str] | None = None,
+            exclude=()) -> str | None:
+    a = normalise(answer)
+    if not a:
+        return None
+    if a in exact and exact[a] not in exclude:
+        return exact[a]
+    # the teacher sometimes answers with a sentence: longest non-excluded hit
+    hits = [(len(surf), canon) for surf, canon in exact.items()
+            if len(surf) > 3 and surf in a and canon not in exclude]
+    if hits:
+        return max(hits)[1]
+    # numeric answers (atomic numbers) are matched loosely
+    if a.isdigit():
+        for surf, canon in exact.items():
+            if surf == a:
+                return canon
+    return None
+
+
+# --------------------------------------------------------------------------
+# probe grid
+# --------------------------------------------------------------------------
+# paraphrase templates per relation.  Teacher probes and DNA-only eval use
+# *different* template sets, so the DNA is never evaluated on the exact surface
+# forms the teacher was probed with.
+TEACHER_TEMPLATES = {
+    "capital_of": [
+        "What is the capital of {s}?",
+        "Tell me the capital city of {s}.",
+        "Name the capital of {s}.",
+        "The capital city of {s} is what?",
+        "What city is the capital of {s}?",
+    ],
+    "continent_of": [
+        "Which continent is {s} in?",
+        "Tell me the continent of {s}.",
+        "What continent does {s} belong to?",
+        "On which continent is {s} located?",
+        "{s} is on which continent?",
+    ],
+    "symbol_of": [
+        "What is the chemical symbol of {s}?",
+        "Give the chemical symbol for {s}.",
+        "Which chemical symbol stands for {s}?",
+        "Tell me the symbol of {s}.",
+        "What symbol represents {s}?",
+    ],
+    "number_of": [
+        "What is the atomic number of {s}?",
+        "Give the atomic number for {s}.",
+        "Tell me the atomic number of {s}.",
+        "Which atomic number belongs to {s}?",
+        "{s} has which atomic number?",
+    ],
+    "category_of": [
+        "What type of element is {s} (for example: alkali metal, alkaline earth metal, "
+        "transition metal, post-transition metal, metalloid, nonmetal, halogen, "
+        "noble gas, lanthanide, actinide)?",
+        "Give the category of {s} (alkali metal, alkaline earth metal, transition metal, "
+        "post-transition metal, metalloid, nonmetal, halogen, noble gas, lanthanide, actinide)?",
+        "Which category does {s} belong to (alkali metal, alkaline earth metal, transition "
+        "metal, post-transition metal, metalloid, nonmetal, halogen, noble gas, "
+        "lanthanide, actinide)?",
+        "Tell me the element category of {s} (alkali metal, alkaline earth metal, transition "
+        "metal, post-transition metal, metalloid, nonmetal, halogen, noble gas, lanthanide, "
+        "actinide)?",
+        "How is {s} classified as an element (alkali metal, alkaline earth metal, transition "
+        "metal, post-transition metal, metalloid, nonmetal, halogen, noble gas, lanthanide, "
+        "actinide)?",
+    ],
+}
+
+# DNA-only evaluation templates (held out from the teacher probes)
+EVAL_TEMPLATES = {
+    "capital_of": ["what is the capital of {s}?", "capital of {s}"],
+    "continent_of": ["what continent is {s} in?", "the continent of {s}"],
+    "symbol_of": ["what is the chemical symbol of {s}?", "chemical symbol for {s}"],
+    "number_of": ["atomic number of {s}", "what is the atomic number of {s}?"],
+    "category_of": ["what type of element is {s}?", "category of {s}"],
+}
+
+
+def build_probe_grid(countries, elements):
+    """[(relation, subject, question)]"""
+    probes = []
+    for (c, cap, cont) in countries:
+        for rel, tpl in TEACHER_TEMPLATES.items():
+            if rel == "capital_of":
+                obj = cap
+            elif rel == "continent_of":
+                obj = cont
+            else:
+                continue
+            for t in tpl:
+                probes.append((rel, c, t.format(s=c), obj))
+    for (sym, name, cat, num) in elements:
+        for rel, tpl in TEACHER_TEMPLATES.items():
+            if rel == "symbol_of":
+                obj = sym
+            elif rel == "number_of":
+                obj = str(num)
+            elif rel == "category_of":
+                obj = cat
+            else:
+                continue
+            for t in tpl:
+                probes.append((rel, name, t.format(s=name), obj))
+    return probes
+
+
+def build_eval_grid(countries, elements):
+    evals = []
+    for (c, cap, cont) in countries:
+        for rel, tpls in EVAL_TEMPLATES.items():
+            if rel == "capital_of":
+                obj = cap
+            elif rel == "continent_of":
+                obj = cont
+            else:
+                continue
+            for t in tpls:
+                evals.append((rel, c, t.format(s=c), obj))
+    for (sym, name, cat, num) in elements:
+        for rel, tpls in EVAL_TEMPLATES.items():
+            if rel == "symbol_of":
+                obj = sym
+            elif rel == "number_of":
+                obj = str(num)
+            elif rel == "category_of":
+                obj = cat
+            else:
+                continue
+            for t in tpls:
+                evals.append((rel, name, t.format(s=name), obj))
+    return evals
+
+
+# --------------------------------------------------------------------------
+# extraction
+# --------------------------------------------------------------------------
+def extract_atoms(probe_results, exact, slot_candidates=None, min_votes: int = 2):
+    """probe_results: [(rel, subject, question, answer, gold)] -> atoms + stats."""
+    slot_candidates = slot_candidates or {}
+    buckets: dict[tuple[str, str], list[tuple[str, bool]]] = {}
+    for (rel, subj, q, ans, gold) in probe_results:
+        cands = slot_candidates.get(rel)
+        if cands:
+            hit = resolve_in(ans, cands, exclude=(subj,))
+            if hit is None:                      # fall back to the global namespace
+                hit = resolve(ans, exact, exclude=(subj,))
+        else:
+            hit = resolve(ans, exact, exclude=(subj,))
+        buckets.setdefault((rel, subj), []).append((hit, hit == gold))
+    atoms = []
+    n_resolved = n_total = 0
+    for (rel, subj), votes in buckets.items():
+        n_total += len(votes)
+        good = [h for (h, ok) in votes if h is not None]
+        n_resolved += len(good)
+        if len(good) < min_votes:
+            continue
+        counts: dict[str, int] = {}
+        for h in good:
+            counts[h] = counts.get(h, 0) + 1
+        best = max(counts.items(), key=lambda kv: kv[1])[0]
+        atoms.append((subj, rel, best))
+    return atoms, {"resolved": n_resolved, "total": n_total,
+                   "resolved_frac": n_resolved / max(1, n_total)}
+
+
+def score_extraction(atoms, gold_atoms):
+    """Precision / recall / F1 of the extracted atom set against the gold set."""
+    P = set(atoms)
+    G = set(gold_atoms)
+    tp = len(P & G)
+    prec = tp / max(1, len(P))
+    rec = tp / max(1, len(G))
+    f1 = 2 * prec * rec / max(1e-9, prec + rec)
+    return {"precision": prec, "recall": rec, "f1": f1,
+            "tp": tp, "n_pred": len(P), "n_gold": len(G),
+            "missing": sorted(G - P)[:20], "spurious": sorted(P - G)[:20]}
