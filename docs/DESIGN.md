@@ -1,16 +1,15 @@
 # HELIX — Holographic Exponential-Lattice Interference eXtractor
 ### A parametric knowledge-memory architecture for *Reverse DNA*
 
-> **Hinglish summary (2 minute version).** Ordinary LLM weights me knowledge store karne ke liye
-> *bure* hain — kyunki ek weight ko ek saath syntax, reasoning, formatting **aur** fact teeno
-> carry karne padte hain. Iska measured cost: **sirf 2 knowledge-bits per parameter**
-> (Allen-Zhu & Li, NeurIPS 2025). Matlab har byte me aadha se zyada "interpreter tax" jata hai.
-> HELIX yeh tax hatata hai aur knowledge ko *rule + sparse fact + content-address* ke roop me
-> store karta hai. Prototype (CPU, numpy, 12 KB artifact) ne **fact-dense domain me 99.9%**
-> aur **rule-dense domain me 100%** accuracy di, aur rule-dense domain me teacher LLM se
-> **48x zyada knowledge density per byte** nikli. Lekin honest baat: **"1000x" sirf rule-dense
-> domains me possible hai**, arbitrary facts me nahi. Ye document wo numbers, wo math, aur wo
-> roadmap deta hai jo Reverse DNA ko ek publishable claim bana sakta hai.
+> **Quick Summary (2 minute version).** Ordinary LLM weights are inefficient for
+> knowledge storage because each weight must simultaneously encode syntax, reasoning, formatting **and** facts.
+> The measured cost: **only 2 knowledge-bits per parameter** (Allen-Zhu & Li, NeurIPS 2025).
+> This means more than half of each byte goes to "interpreter tax". HELIX eliminates this tax by storing
+> knowledge as *rule + sparse fact + content-address*. The prototype (CPU, numpy, 12 KB artifact) achieves
+> **99.9% accuracy in fact-dense domains** and **100% accuracy in rule-dense domains**, with **48x better
+> knowledge density per byte** than the teacher LLM in rule-dense domains. However, the honest truth is:
+> **"1000x" is only possible in rule-dense domains**, not for arbitrary facts. This document provides the
+> numbers, the math, and the roadmap that could make Reverse DNA a publishable claim.
 
 ---
 

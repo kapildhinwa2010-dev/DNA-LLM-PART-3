@@ -1,0 +1,18 @@
+# Core dependencies
+numpy>=1.21.0
+
+# Optional dependencies for teacher models
+# torch>=2.0.0
+# transformers>=4.30.0
+# accelerate>=0.20.0
+# bitsandbytes>=0.40.0
+
+# Development dependencies
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# Documentation
+mkdocs>=1.4.0
+mkdocs-material>=9.0.0
