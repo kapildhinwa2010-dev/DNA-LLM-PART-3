@@ -46,7 +46,7 @@ CAL_PROMPTS = [
     "In Python, to sort a list you use",
 ]
 
-TRAJ_STEPS = 4          # calibration trajectory ke liye generated tokens
+TRAJ_STEPS = 4          # calibration trajectory generated tokens
 MAX_NEW = 6             # test generation tokens
 TOPK = 3                # lookahead candidates
 
@@ -474,12 +474,12 @@ for h in dna_hooks:
 print("\n" + "=" * 82)
 print("🏆 MISSION 2.0 COMPLETE")
 print("=" * 82)
-print("Is code mein:")
-print("1. Spiral Zoom DNA extraction hai.")
-print("2. Trajectory anchors generation drift kam karne ke liye hain.")
-print("3. Lookahead scoring void/cliff penalty karti hai.")
-print("4. Repetition brakes looping kam karte hain.")
-print("5. Physical .dna artifact save hota hai.")
+print("In this code:")
+print("1. Spiral Zoom DNA extraction is implemented.")
+print("2. Trajectory anchors generation reduces drift.")
+print("3. Lookahead scoring applies void/cliff penalty.")
+print("4. Repetition brakes reduce looping.")
+print("5. Physical .dna artifact is saved.")
 print(f"\n⏱️ Total time: {time.time() - t0:.1f}s")
 
 del model
@@ -558,8 +558,8 @@ print("=" * 86)
 # ------------------------------------------------------------
 # 0. CONFIG
 # ------------------------------------------------------------
-# CPU validation ke liye 0.5B best hai.
-# Agar 1.5B try karna ho toh: "Qwen/Qwen2.5-1.5B-Instruct"
+# For CPU validation, 0.5B is best.
+# To try 1.5B: "Qwen/Qwen2.5-1.5B-Instruct"
 MODEL_NAME = os.getenv("CPU_MODEL", "Qwen/Qwen2.5-0.5B-Instruct")
 
 ZOOM_LEVELS = 3
@@ -952,9 +952,9 @@ print("\n" + "=" * 86)
 print("🏆 MISSION 2.1 VERDICT")
 print("=" * 86)
 print("Dekho:")
-print("1. Agar Raw DNA sahi hai lekin Lookahead kharab kar raha hai -> scoring tune karo.")
-print("2. Agar Raw DNA bhi blank/degenerate hai -> rank aur badhao.")
-print("3. Agar 0.5B par kaam ho jaye -> phir 1.5B par rank=64 try karo.")
+print("1. If Raw DNA is correct but Lookahead is bad -> tune scoring.")
+print("2. If Raw DNA is blank/degenerate -> increase rank.")
+print("3. If 0.5B works -> try rank=64 on 1.5B.")
 print(f"\n⏱️ Total time: {time.time() - t0:.1f}s")
 
 del model
@@ -1501,13 +1501,13 @@ print("\n" + "=" * 88)
 print("🏆 MISSION 2.2 VERDICT GUIDE")
 print("=" * 88)
 print("""
-Result kaise padhna hai:
+How to read the results:
 
 1. Agar Hard DNA sahi aaye:
-   → Spiral DNA strong hai. Next: 7B 4-bit par scale karo.
+   → Spiral DNA is strong. Next: scale to 7B 4-bit.
 
 2. Agar Hard DNA fail, Soft 0.50 sahi:
-   → DNA guide kar sakta hai, par full replacement nahi.
+   → DNA can guide, but cannot fully replace.
    → Startup claim: Base Model + DNA Cartridge.
 
 3. Agar Soft 0.75 bhi fail:
@@ -1516,7 +1516,7 @@ Result kaise padhna hai:
    → Ya distillation/LoRA chahiye.
 
 4. Agar Lookahead Soft se better:
-   → Manifold guard kaam kar raha hai.
+   → Manifold guard is working.
    → Next: lookahead scoring tune karo.
 """)
 
@@ -1599,13 +1599,13 @@ Lookahead : The chemical symbol for silver is Ag, which is a silver, which
 🏆 MISSION 2.2 VERDICT GUIDE
 ========================================================================================
 
-Result kaise padhna hai:
+How to read the results:
 
 1. Agar Hard DNA sahi aaye:
-   → Spiral DNA strong hai. Next: 7B 4-bit par scale karo.
+   → Spiral DNA is strong. Next: scale to 7B 4-bit.
 
 2. Agar Hard DNA fail, Soft 0.50 sahi:
-   → DNA guide kar sakta hai, par full replacement nahi.
+   → DNA can guide, but cannot fully replace.
    → Startup claim: Base Model + DNA Cartridge.
 
 3. Agar Soft 0.75 bhi fail:
@@ -1614,7 +1614,7 @@ Result kaise padhna hai:
    → Ya distillation/LoRA chahiye.
 
 4. Agar Lookahead Soft se better:
-   → Manifold guard kaam kar raha hai.
+   → Manifold guard is working.
    → Next: lookahead scoring tune karo.
 
 
@@ -2189,7 +2189,7 @@ print("""
    → Bahut bada win.
    → Matlab model ne compressed DNA language seekh li.
 
-3. Agar abhi bhi gibberish/repetition hai:
+3. If there is still gibberish/repetition:
    → MAX_STEPS badhao: 60
    → LORA_R badhao: 16
    → TARGET_MODULES mein add karo: "k_proj", "o_proj"
@@ -2961,7 +2961,7 @@ print("""
    → Bahut bada win.
    → Matlab model ne compressed DNA language seekh li.
 
-3. Agar abhi bhi gibberish/repetition hai:
+3. If there is still gibberish/repetition:
    → MAX_STEPS badhao: 60
    → LORA_R badhao: 16
    → TARGET_MODULES mein add karo: "k_proj", "o_proj"
@@ -3672,7 +3672,7 @@ print("""
    → Bahut bada win.
    → Matlab model ne compressed DNA language seekh li.
 
-3. Agar abhi bhi gibberish/repetition hai:
+3. If there is still gibberish/repetition:
    → MAX_STEPS badhao: 60
    → LORA_R badhao: 16
    → TARGET_MODULES mein add karo: "k_proj", "o_proj"
@@ -3763,7 +3763,7 @@ Trained LoRA + Hard DNA     : The chemical symbol for silver is Ag ( __ ____ ___
    → Bahut bada win.
    → Matlab model ne compressed DNA language seekh li.
 
-3. Agar abhi bhi gibberish/repetition hai:
+3. If there is still gibberish/repetition:
    → MAX_STEPS badhao: 60
    → LORA_R badhao: 16
    → TARGET_MODULES mein add karo: "k_proj", "o_proj"

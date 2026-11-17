@@ -22,7 +22,7 @@ Held-out token generation# =====================================================
 # 🧬 PD-2: 8-LENS KNOWLEDGE ATOM DNA — ONE CELL CPU PROTOTYPE
 # ============================================================
 # Goal:
-# Teacher model ki knowledge ko 8 lenses se map karo:
+# Map teacher model knowledge using 8 lenses:
 # 1. Ant-bil / routing flow
 # 2. Logits / output anchors
 # 3. Activations / hidden waves
@@ -32,7 +32,7 @@ Held-out token generation# =====================================================
 # 7. Behavior statistics
 # 8. Knowledge wave amplitudes
 #
-# Phir DNA banao:
+# Then create DNA:
 # - shared wave basis
 # - concept atoms
 # - input -> amplitude router
@@ -5081,8 +5081,8 @@ Now begin.# ============================================================
 # 🧬 PD-6: HYBRID CLOSED-BOOK DNA CARTRIDGE — ONE CELL CPU
 # ============================================================
 # Goal:
-# Teacher model se knowledge extract karo, teacher delete karo,
-# phir DNA-only hybrid system se stored concepts retrieve karo:
+# Extract knowledge from teacher model, delete teacher,
+# then retrieve stored concepts from DNA-only hybrid system:
 #   - direct prompts
 #   - alias prompts
 #   - clue prompts

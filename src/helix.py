@@ -30,4 +30,4 @@ from typing import Callable, Iterable, Optional
 
 import numpy as np
 
-# (Baki ka helix.py ka code exact plain text me upar context mein maujood hai)
+# Note: This is the core HELIX implementation. For full details, see DESIGN.md
