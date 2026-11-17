@@ -1,0 +1,411 @@
+{
+ "atoms": 2010,
+ "rules": [
+  {
+   "kind": "chain",
+   "steps": [
+    "based_in",
+    "settlement_in"
+   ],
+   "support": 49,
+   "dl": 3,
+   "score": 16.333333333333332
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "based_in",
+    "settlement_of"
+   ],
+   "support": 28,
+   "dl": 3,
+   "score": 9.333333333333334
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "birthplace_in",
+    "settlement_in"
+   ],
+   "support": 28,
+   "dl": 3,
+   "score": 9.333333333333334
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "works_in",
+    "country_in"
+   ],
+   "support": 28,
+   "dl": 3,
+   "score": 9.333333333333334
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_in",
+    "country_in"
+   ],
+   "support": 24,
+   "dl": 3,
+   "score": 8.0
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "country_in",
+    "admin_region_of"
+   ],
+   "support": 19,
+   "dl": 3,
+   "score": 6.333333333333333
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_of",
+    "country_in"
+   ],
+   "support": 19,
+   "dl": 3,
+   "score": 6.333333333333333
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_in",
+    "also_known_as"
+   ],
+   "support": 17,
+   "dl": 3,
+   "score": 5.666666666666667
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "birthplace_in",
+    "capital_of"
+   ],
+   "support": 15,
+   "dl": 3,
+   "score": 5.0
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "admin_region_of",
+    "capital_of"
+   ],
+   "support": 14,
+   "dl": 3,
+   "score": 4.666666666666667
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "birthplace_in",
+    "country_in"
+   ],
+   "support": 13,
+   "dl": 3,
+   "score": 4.333333333333333
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_in",
+    "capital_of"
+   ],
+   "support": 13,
+   "dl": 3,
+   "score": 4.333333333333333
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "birthplace_in",
+    "settlement_of"
+   ],
+   "support": 11,
+   "dl": 3,
+   "score": 3.6666666666666665
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "works_in",
+    "settlement_of"
+   ],
+   "support": 11,
+   "dl": 3,
+   "score": 3.6666666666666665
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "admin_region_in",
+    "country_of"
+   ],
+   "support": 10,
+   "dl": 3,
+   "score": 3.3333333333333335
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "based_in",
+    "country_of"
+   ],
+   "support": 10,
+   "dl": 3,
+   "score": 3.3333333333333335
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "birthplace_in",
+    "birthplace_of"
+   ],
+   "support": 10,
+   "dl": 3,
+   "score": 3.3333333333333335
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "capital_of",
+    "settlement_of"
+   ],
+   "support": 10,
+   "dl": 3,
+   "score": 3.3333333333333335
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "country_in",
+    "based_in"
+   ],
+   "support": 10,
+   "dl": 3,
+   "score": 3.3333333333333335
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_in",
+    "country_of"
+   ],
+   "support": 10,
+   "dl": 3,
+   "score": 3.3333333333333335
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_in",
+    "settlement_of"
+   ],
+   "support": 10,
+   "dl": 3,
+   "score": 3.3333333333333335
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "admin_region_of",
+    "country_in"
+   ],
+   "support": 9,
+   "dl": 3,
+   "score": 3.0
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "admin_region_of",
+    "works_in"
+   ],
+   "support": 9,
+   "dl": 3,
+   "score": 3.0
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "based_in",
+    "capital_of"
+   ],
+   "support": 9,
+   "dl": 3,
+   "score": 3.0
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "based_in",
+    "country_in"
+   ],
+   "support": 9,
+   "dl": 3,
+   "score": 3.0
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "capital_of",
+    "settlement_in"
+   ],
+   "support": 9,
+   "dl": 3,
+   "score": 3.0
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_of",
+    "capital_of"
+   ],
+   "support": 9,
+   "dl": 3,
+   "score": 3.0
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_of",
+    "country_of"
+   ],
+   "support": 9,
+   "dl": 3,
+   "score": 3.0
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "based_in",
+    "admin_region_of"
+   ],
+   "support": 8,
+   "dl": 3,
+   "score": 2.6666666666666665
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "country_in",
+    "settlement_of"
+   ],
+   "support": 8,
+   "dl": 3,
+   "score": 2.6666666666666665
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "feature_in",
+    "country_in"
+   ],
+   "support": 8,
+   "dl": 3,
+   "score": 2.6666666666666665
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_in",
+    "admin_region_of"
+   ],
+   "support": 8,
+   "dl": 3,
+   "score": 2.6666666666666665
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_of",
+    "settlement_in"
+   ],
+   "support": 8,
+   "dl": 3,
+   "score": 2.6666666666666665
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "works_in",
+    "capital_of"
+   ],
+   "support": 8,
+   "dl": 3,
+   "score": 2.6666666666666665
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "works_in",
+    "settlement_in"
+   ],
+   "support": 8,
+   "dl": 3,
+   "score": 2.6666666666666665
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "birthplace_in",
+    "country_of"
+   ],
+   "support": 7,
+   "dl": 3,
+   "score": 2.3333333333333335
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "country_in",
+    "also_known_as"
+   ],
+   "support": 7,
+   "dl": 3,
+   "score": 2.3333333333333335
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "settlement_in",
+    "works_of"
+   ],
+   "support": 7,
+   "dl": 3,
+   "score": 2.3333333333333335
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "admin_region_in",
+    "country_in"
+   ],
+   "support": 6,
+   "dl": 3,
+   "score": 2.0
+  },
+  {
+   "kind": "chain",
+   "steps": [
+    "birthplace_in",
+    "works_in"
+   ],
+   "support": 6,
+   "dl": 3,
+   "score": 2.0
+  }
+ ],
+ "n_rules": 73,
+ "claims_forward": 2010,
+ "claims_inverse": 0,
+ "claims_chain": 640,
+ "total_claims": 2650,
+ "D_derive": 1.318407960199005
+}
